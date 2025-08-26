@@ -100,7 +100,7 @@ function git_reset_to_origin() {
 function nixos_update_config() {
     if is_dir_exists "${CONFIG_REPO_DIR}/.git"; then
         echo "Fetching updates from repository..."
-        if git_fetch_nixos_config_repo && git_reset_to_origin; then
+        if git_fetch_nixos_config_repo; then
             return 0
         else
             echo "Error: Could not fetch config repository!"
@@ -122,6 +122,7 @@ function nixos_update_config() {
 function is_rebuild_needed() {
     if nixos_update_config; then
         if git_check_for_new_commit; then
+            git_reset_to_origin
             echo "New commits found. Rebuild needed!"
             return 0
         else 
