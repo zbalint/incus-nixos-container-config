@@ -3,7 +3,8 @@
 # unreachable from the internet
 readonly GOTIFY_TOKEN="A2bEcglYh475ZK."
 readonly CONFIG_REPO_URL="https://github.com/zbalint/incus-nixos-container-config.git"
-readonly CONFIG_REPO_DIR="/etc/nixos"
+readonly CONFIG_DIR="/etc/nixos"
+readonly CONFIG_REPO_DIR="/root/nixos"
 
 CONTAINER_NAME="$(cat /etc/hostname)"
 COMMIT_HASH=""
@@ -63,15 +64,14 @@ function git_clone_nixos_config_repo() {
     mv ${CONFIG_REPO_DIR}/temp/.git ${CONFIG_REPO_DIR}/.git && \
     rm -rf ${CONFIG_REPO_DIR}/temp && \
     cd ${CONFIG_REPO_DIR} && \
-    cp incus.nix /tmp && \
     git checkout . && \
     git reset --hard && \
     git clean -df && \
-    mv /tmp/incus.nix .
+    cp ${CONFIG_REPO_DIR}/* ${CONFIG_DIR}/
 }
 
 function git_fetch_nixos_config_repo() {
-    cd /etc/nixos && \
+    cd ${CONFIG_REPO_DIR} && \
     git fetch origin master
 }
 
@@ -79,7 +79,7 @@ function git_check_for_new_commit() {
     local git_local_head
     local git_remote_head
 
-    cd /etc/nixos || return 1
+    cd ${CONFIG_REPO_DIR} || return 1
 
     git_local_head=$(git rev-parse HEAD)
     git_remote_head=$(git rev-parse origin/master)

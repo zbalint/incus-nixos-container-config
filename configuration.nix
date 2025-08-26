@@ -3,7 +3,7 @@
 {
   imports = [
     "${modulesPath}/virtualisation/lxc-container.nix"
-    (builtins.path { path = "/etc/nixos/incus.nix"; })
+    ./incus.nix
   ];
 
   networking = {
