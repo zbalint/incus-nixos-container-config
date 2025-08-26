@@ -15,7 +15,6 @@
             sandbox = false;
           };
 
-          # Enable Docker instead of Podman
           virtualisation.docker.enable = true;
 
           # Optionally enable rootless Docker
