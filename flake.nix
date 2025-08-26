@@ -31,6 +31,7 @@
             isNormalUser = true; # marks as a normal user
             description = "tartarus"; # optional
             hashedPassword = "$y$j9T$zPyT0FHrHcnf93tR6oupe/$XP2h7uePCAF8Z6U6xb9eTFDIf5Va9G1tVrOnuwSmIb0"; # password
+            linger = true;
             uid = 4000; # set user id
             extraGroups = [ "podman" ]; # podman access
           };

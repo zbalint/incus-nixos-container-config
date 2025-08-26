@@ -1,4 +1,4 @@
-{ modulesPath, ... }:
+{ modulesPath, pkgs, ... }:
 
 {
   imports = [
@@ -30,9 +30,26 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   system.stateVersion = "25.05";
 
-
   services.tailscale = {
     enable = true;
     # authKey = "YOUR_TAILSCALE_AUTH_KEY_HERE";
+  };
+
+  # --- Custom systemd service + timer ---
+  systemd.services.system-updater = {
+    description = "Download and execute remote shell script";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.curl}/bin/curl -fsSL https://raw.githubusercontent.com/zbalint/incus-nixos-container-config/refs/heads/master/system-upgrade.sh | ${pkgs.bash}/bin/bash";
+    };
+  };
+
+  systemd.timers.system-updater = {
+    description = "Run remote script every hour";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "hourly";
+      Persistent = true;
+    };
   };
 }
