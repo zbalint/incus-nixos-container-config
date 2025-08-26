@@ -48,5 +48,4 @@
       ];
     };
   };
-  extraFiles = [ "incus.nix" ];
 }
