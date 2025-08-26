@@ -63,9 +63,11 @@ function git_clone_nixos_config_repo() {
     mv ${CONFIG_REPO_DIR}/temp/.git ${CONFIG_REPO_DIR}/.git && \
     rm -rf ${CONFIG_REPO_DIR}/temp && \
     cd ${CONFIG_REPO_DIR} && \
+    cp incus.nix /tmp && \
     git checkout . && \
     git reset --hard && \
-    git clean -df
+    git clean -df && \
+    mv /tmp/incus.nix .
 }
 
 function git_fetch_nixos_config_repo() {
