@@ -1,5 +1,5 @@
 {
-  description = "Incus NixOS container for Podman";
+  description = "Incus NixOS container for Docker";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
 
@@ -14,8 +14,11 @@
             sandbox = false;
           };
 
-          virtualisation.podman.enable = true;
-          virtualisation.podman.dockerCompat = true;
+          # Enable Docker instead of Podman
+          virtualisation.docker.enable = true;
+
+          # Optionally enable rootless Docker
+          # virtualisation.docker.rootless.enable = true;
 
           # Install packages system-wide
           environment.systemPackages = with nixpkgs.legacyPackages.x86_64-linux; [
@@ -29,7 +32,7 @@
             description = "styx";
             hashedPassword = "$y$j9T$0d6Gx30pnve.klhKgmZwe0$JrdRjFcObsc59RL/ug5fu0DQDdCwKnSOb.b8KIYw2G5";
             uid = 2000;
-            extraGroups = [ "wheel" ];
+            extraGroups = [ "wheel" "docker" ]; # allow Docker usage
           };
           # Add a new user "tartarus"
           users.users.tartarus = {
@@ -38,7 +41,7 @@
             hashedPassword = "$y$j9T$zPyT0FHrHcnf93tR6oupe/$XP2h7uePCAF8Z6U6xb9eTFDIf5Va9G1tVrOnuwSmIb0";
             linger = true;
             uid = 4000;
-            extraGroups = [ "podman" ];
+            extraGroups = [ "docker" ]; # allow Docker usage
           };
         }
       ];
