@@ -8,6 +8,7 @@
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
+        ./incus.nix
         {
           nix.settings = {
             experimental-features = [ "nix-command" "flakes" ];
