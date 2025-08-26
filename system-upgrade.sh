@@ -58,7 +58,14 @@ function send_error_notification() {
 }
 
 function git_clone_nixos_config_repo() {
-    git clone -b master https://github.com/yourusername/nixos-flake.git ${CONFIG_REPO_DIR}
+    git clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} || \
+    git clone ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR}/temp && \
+    mv ${CONFIG_REPO_DIR}/temp/.git ${CONFIG_REPO_DIR}/.git && \
+    rm -rf ${CONFIG_REPO_DIR}/temp && \
+    cd ${CONFIG_REPO_DIR} && \
+    git checkout . && \
+    git reset --hard && \
+    git clean -df
 }
 
 function git_fetch_nixos_config_repo() {
