@@ -75,7 +75,7 @@ function send_error_notification() {
 
 function get_git_command() {
     if is_first_run; then
-        echo "PATH=/run/wrappers/bin:/root/.nix-profile/bin:/nix/profile/bin:/root/.local/state/nix/profile/bin:/etc/profiles/per-user/root/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin git"
+        echo "git"
     else
         echo "git"
     fi
