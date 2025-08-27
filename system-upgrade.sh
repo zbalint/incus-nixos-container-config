@@ -1,5 +1,6 @@
 #!/bin/bash
 
+FIRST_RUN_FLAG=false
 # unreachable from the internet
 readonly GOTIFY_TOKEN="A2bEcglYh475ZK."
 readonly CONFIG_REPO_URL="https://github.com/zbalint/incus-nixos-container-config.git"
@@ -8,6 +9,20 @@ readonly CONFIG_REPO_DIR="/root/nixos"
 
 CONTAINER_NAME="$(cat /etc/hostname)"
 COMMIT_HASH=""
+
+function is_first_run() {
+    if ${FIRST_RUN_FLAG}; then
+        return 0
+    else
+        if git --version >/bin/null 2>&1; then
+            FIRST_RUN_FLAG=false
+            return 1
+        else
+            FIRST_RUN_FLAG=true
+            return 0
+        fi
+    fi
+}
 
 function is_dir_exists() {
     local dir="$1"
@@ -58,31 +73,48 @@ function send_error_notification() {
     gotify_send_notification 10 "${title}" "${message}"
 }
 
+function get_git_command() {
+    if is_first_run; then
+        echo "nix --extra-experimental-features nix-command --extra-experimental-features flakes run nixpkgs#git --"
+    else
+        echo "git"
+    fi
+}
+
 function git_clone_nixos_config_repo() {
-    git clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} || \
-    git clone ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR}/temp && \
+    local git_bin
+    git_bin=$(get_git_command)
+
+    ${git_bin} clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} || \
+    ${git_bin} clone ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR}/temp && \
     mv ${CONFIG_REPO_DIR}/temp/.git ${CONFIG_REPO_DIR}/.git && \
     rm -rf ${CONFIG_REPO_DIR}/temp && \
     cd ${CONFIG_REPO_DIR} && \
-    git checkout . && \
-    git reset --hard && \
-    git clean -df && \
+    ${git_bin} checkout . && \
+    ${git_bin} reset --hard && \
+    ${git_bin} clean -df && \
     cp ${CONFIG_REPO_DIR}/* ${CONFIG_DIR}/
 }
 
 function git_fetch_nixos_config_repo() {
+    local git_bin
+    git_bin=$(get_git_command)
+
     cd ${CONFIG_REPO_DIR} && \
-    git fetch origin master
+    ${git_bin} fetch origin master
 }
 
 function git_check_for_new_commit() {
+    local git_bin
+    git_bin=$(get_git_command)
+
     local git_local_head
     local git_remote_head
 
     cd ${CONFIG_REPO_DIR} || return 1
 
-    git_local_head=$(git rev-parse HEAD)
-    git_remote_head=$(git rev-parse origin/master)
+    git_local_head=$(${git_bin} rev-parse HEAD)
+    git_remote_head=$(${git_bin} rev-parse origin/master)
 
     if [ "${git_local_head}" != "${git_remote_head}" ]; then
         COMMIT_HASH="${git_remote_head}"
@@ -96,7 +128,10 @@ function git_check_for_new_commit() {
 }
 
 function git_reset_to_origin() {
-    git reset --hard origin/master
+    local git_bin
+    git_bin=$(get_git_command)
+
+    ${git_bin} reset --hard origin/master
 }
 
 function nixos_update_config() {
@@ -138,11 +173,11 @@ function is_rebuild_needed() {
 
 function nixos_rebuild() {
     wait_random_delay && \
-    nixos-rebuild build --flake /etc/nixos#container --option sandbox false
+    nixos-rebuild build --flake /etc/nixos#container #--option sandbox false
 }
 
 function nixos_switch() {
-    nixos-rebuild switch --flake /etc/nixos#container --option sandbox false
+    nixos-rebuild switch --flake /etc/nixos#container #--option sandbox false
 }
 
 function nixos_rollback() {
@@ -158,6 +193,13 @@ function check_system_health() {
     fi
 
     return 0
+}
+
+function init() {
+    if is_first_run; then
+        echo "Install git temporary..."
+        nix profile install nixpkgs#git --extra-experimental-features nix-command --extra-experimental-features flakes
+    fi
 }
 
 function main() {
@@ -216,4 +258,12 @@ function main() {
     return 0
 }
 
+function clean() {
+    if is_first_run; then
+        nix profile remove git --extra-experimental-features nix-command --extra-experimental-features flakes
+    fi
+}
+
+init
 main
+clean
