@@ -73,34 +73,17 @@ function send_error_notification() {
     gotify_send_notification 10 "${title}" "${message}"
 }
 
-function get_git_command() {
-    if is_first_run; then
-        echo "git"
-    else
-        echo "git"
-    fi
-}
-
 function git_clone_nixos_config_repo() {
-    local git_bin
-    git_bin=$(get_git_command)
-
-    ${git_bin} clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} && \
+    git clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} && \
     cp ${CONFIG_REPO_DIR}/* ${CONFIG_DIR}/
 }
 
 function git_fetch_nixos_config_repo() {
-    local git_bin
-    git_bin=$(get_git_command)
-
     cd ${CONFIG_REPO_DIR} && \
-    ${git_bin} fetch origin master
+    git fetch origin master
 }
 
 function git_check_for_new_commit() {
-    local git_bin
-    git_bin=$(get_git_command)
-
     local git_local_head
     local git_remote_head
 
@@ -110,8 +93,8 @@ function git_check_for_new_commit() {
 
     cd ${CONFIG_REPO_DIR} || return 1
 
-    git_local_head=$(${git_bin} rev-parse HEAD)
-    git_remote_head=$(${git_bin} rev-parse origin/master)
+    git_local_head=$(git rev-parse HEAD)
+    git_remote_head=$(git rev-parse origin/master)
 
     if [ "${git_local_head}" != "${git_remote_head}" ]; then
         COMMIT_HASH="${git_remote_head}"
@@ -125,10 +108,7 @@ function git_check_for_new_commit() {
 }
 
 function git_reset_to_origin() {
-    local git_bin
-    git_bin=$(get_git_command)
-
-    ${git_bin} reset --hard origin/master
+    git reset --hard origin/master
 }
 
 function nixos_update_config() {
