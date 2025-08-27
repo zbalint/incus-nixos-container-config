@@ -195,7 +195,8 @@ function check_system_health() {
 function init() {
     if is_first_run; then
         echo "Install git temporary..."
-        nix profile install nixpkgs#git --extra-experimental-features nix-command --extra-experimental-features flakes
+        nix-channel --update
+        nix-env -iA nixos.git
     fi
 }
 
@@ -257,7 +258,7 @@ function main() {
 
 function clean() {
     if is_first_run; then
-        nix-env -iA nixos.git
+        return 0
     fi
 }
 
