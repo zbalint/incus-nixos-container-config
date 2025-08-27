@@ -104,6 +104,10 @@ function git_check_for_new_commit() {
     local git_local_head
     local git_remote_head
 
+    if is_first_run; then
+        return 0
+    fi
+
     cd ${CONFIG_REPO_DIR} || return 1
 
     git_local_head=$(${git_bin} rev-parse HEAD)
