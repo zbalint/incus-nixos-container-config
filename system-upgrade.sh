@@ -85,7 +85,7 @@ function git_clone_nixos_config_repo() {
     local git_bin
     git_bin=$(get_git_command)
 
-    ${git_bin} clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} || \
+    ${git_bin} clone -b master ${CONFIG_REPO_URL} ${CONFIG_REPO_DIR} && \
     cd ${CONFIG_REPO_DIR} && \
     ${git_bin} checkout . && \
     ${git_bin} reset --hard && \
