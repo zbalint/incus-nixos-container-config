@@ -150,11 +150,11 @@ function is_rebuild_needed() {
 
 function nixos_rebuild() {
     wait_random_delay && \
-    nixos-rebuild build --flake /etc/nixos#container #--option sandbox false
+    nixos-rebuild build --flake /etc/nixos#container --option sandbox false
 }
 
 function nixos_switch() {
-    nixos-rebuild switch --flake /etc/nixos#container #--option sandbox false
+    nixos-rebuild switch --flake /etc/nixos#container --option sandbox false
 }
 
 function nixos_rollback() {
